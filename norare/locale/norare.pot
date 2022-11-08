@@ -1,0 +1,43 @@
+# Translations template for norare.
+# Copyright (C) 2022 ORGANIZATION
+# This file is distributed under the same license as the norare project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: norare 0.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2022-11-08 09:24+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: norare/__init__.py:14
+msgid "Parameter"
+msgstr ""
+
+#: norare/__init__.py:15
+msgid "Parameters"
+msgstr ""
+
+#: norare/__init__.py:16
+msgid "Unitparameter"
+msgstr ""
+
+#: norare/__init__.py:17
+msgid "Unitparameters"
+msgstr ""
+
+#: norare/__init__.py:18
+msgid "Contribution"
+msgstr ""
+
+#: norare/__init__.py:19
+msgid "Contributions"
+msgstr ""
+
