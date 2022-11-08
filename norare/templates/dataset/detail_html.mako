@@ -8,22 +8,17 @@
             If you use the data assembled here, we ask you kindly to cite the study.
         </p>
         <blockquote>
-            ${req.dataset.jsondata['citation']}
+            ${req.dataset.jsondata['citation']|n}
         </blockquote>
     </div>
 </%def>
 
-<h2>Welcome to norare</h2>
+<h2>Welcome to NoRaRe</h2>
 
 <img src="${req.static_url('norare:static/norare-logo.svg')}" style="width: 25%; float: left; margin-right: 1em;">
 <p class="lead">
-    Welcome to NoRaRe, the cross-linguistic database of norms, ratings, and relations of words and concepts.
-</p>
-<p>
-    In order to browse through the data, just navigate to
-    <a href="${req.route_url('parameters')}">Concept sets</a>,
-    and start typing in the name of the concept in one of the available gloss languages, to have the table
-    filtered to matching entries.
+    Welcome to NoRaRe, the cross-linguistic database of <strong>No</strong>rms, <strong>Ra</strong>tings, and <strong>Re</strong>lations
+    of Words and Concepts.
 </p>
 <p>
     This web application serves as a light-weight interface to quickly browse the Database of Cross-Linguistic

@@ -16,6 +16,18 @@ import norare
 from norare import models
 
 
+def link_doi(text):
+    res, getit = [], False
+    for word in text.split():
+        if getit:
+            word = '<a href="https://doi.org/{0}">{0}</a>'.format(word)
+            getit = False
+        if word.lower().startswith('doi'):
+            getit = True
+        res.append(word)
+    return ' '.join(res)
+
+
 def main(args):
     data = Data()
     data.add(
@@ -30,7 +42,7 @@ def main(args):
         publisher_url="https://www.eva.mpg.de",
         license="http://creativecommons.org/licenses/by/4.0/",
         jsondata={
-            'citation': args.cldf.properties['dc:bibliographicCitation'],
+            'citation': link_doi(args.cldf.properties['dc:bibliographicCitation']),
             'license_icon': 'cc-by.png',
             'license_name': 'Creative Commons Attribution 4.0 International License'},
 

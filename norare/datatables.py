@@ -110,7 +110,6 @@ class Variables(Unitparameters):
         ]
 
 
-
 def includeme(config):
     config.register_datatable('unitvalues', Norare)
     config.register_datatable('contributions', Datasets)
