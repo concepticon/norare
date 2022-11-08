@@ -1,10 +1,11 @@
 from sqlalchemy.orm import joinedload
 from clld.web import datatables
-from clld.web.datatables.base import LinkCol, Col, LinkToMapCol, RefsCol
+from clld.web.datatables.base import LinkCol, Col, LinkToMapCol, RefsCol, DetailsRowLinkCol
 from clld.web.datatables.unitvalue import Unitvalues
 from clld.web.datatables.contribution import Contributions
 from clld.web.datatables.parameter import Parameters
 from clld.web.datatables.unitparameter import Unitparameters
+from clld.web.datatables.value import Values
 from clld.db.models import common
 from clld.db.util import get_distinct_values
 from clld_markdown_plugin import markdown
@@ -82,14 +83,14 @@ class Conceptsets(Parameters):
     def col_defs(self):
         return [
             LinkCol(self, 'name'),
-            Col(self, 'glosses_english', model_col=models.Conceptset.glosses_english),
-            Col(self, 'glosses_german', model_col=models.Conceptset.glosses_german),
-            Col(self, 'glosses_french', model_col=models.Conceptset.glosses_french),
-            Col(self, 'glosses_spanish', model_col=models.Conceptset.glosses_spanish),
-            Col(self, 'glosses_chinese', model_col=models.Conceptset.glosses_chinese),
-            Col(self, 'glosses_russian', model_col=models.Conceptset.glosses_russian),
-            Col(self, 'glosses_portuguese', model_col=models.Conceptset.glosses_portuguese),
-            # DetailsRowLink to open definition!
+            DetailsRowLinkCol(self, '#', button_text='definition'),
+            Col(self, 'glosses_english', sTitle='English Glosses', model_col=models.Conceptset.glosses_english),
+            Col(self, 'glosses_german', sTitle='German Glosses', model_col=models.Conceptset.glosses_german),
+            Col(self, 'glosses_french', sTitle='French Glosses', model_col=models.Conceptset.glosses_french),
+            Col(self, 'glosses_spanish', sTitle='Spanish Glosses', model_col=models.Conceptset.glosses_spanish),
+            Col(self, 'glosses_chinese', sTitle='Chinese Glosses', model_col=models.Conceptset.glosses_chinese),
+            Col(self, 'glosses_russian', sTitle='Russian Glosses', model_col=models.Conceptset.glosses_russian),
+            Col(self, 'glosses_portuguese', sTitle='Portuguese Glosses', model_col=models.Conceptset.glosses_portuguese),
         ]
 
 
@@ -111,8 +112,38 @@ class Variables(Unitparameters):
         ]
 
 
+class Words(Values):
+    def base_query(self, query):
+        if self.language:
+            return query\
+                .join(common.Value.valueset)\
+                .join(common.ValueSet.contribution) \
+                .join(common.ValueSet.parameter)\
+                .join(common.ValueSet.language)\
+                .filter(common.Language.pk == self.language.pk)
+        return Values.base_query(self, query)
+
+    def col_defs(self):
+        return [
+            Col(self, 'name'),
+            LinkCol(
+                self,
+                'parameter',
+                sTitle=self.req.translate('Parameter'),
+                model_col=common.Parameter.name,
+                get_object=lambda i: i.valueset.parameter),
+            LinkCol(
+                self,
+                'contribution',
+                sTitle=self.req.translate('Contribution'),
+                model_col=common.Contribution.name,
+                get_object=lambda i: i.valueset.contribution),
+        ]
+
+
 def includeme(config):
     config.register_datatable('unitvalues', Norare)
     config.register_datatable('contributions', Datasets)
     config.register_datatable('parameters', Conceptsets)
     config.register_datatable('unitparameters', Variables)
+    config.register_datatable('values', Words)

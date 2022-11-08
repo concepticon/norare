@@ -1,7 +1,7 @@
 import itertools
 import collections
 
-from pycldf import Sources
+from pycldf import Dataset
 from clldutils.misc import nfilter, slug
 from clldutils.jsonlib import load
 from clld.cliutil import Data, bibtex2source
@@ -30,6 +30,9 @@ def link_doi(text):
 
 def main(args):
     data = Data()
+    concepticon = Dataset.from_metadata(
+        args.cldf.directory.parent.parent / 'concepticon-cldf' / 'cldf' / 'Wordlist-metadata.json')
+    concepticon = {r['ID']: r for r in concepticon['ParameterTable']}
     ds = data.add(
         common.Dataset,
         norare.__name__,
@@ -117,7 +120,7 @@ def main(args):
             param['id'],
             id=param['id'],
             name='{} [{}]'.format(param['name'], param['id']),
-            description=param['Description'],
+            description=concepticon[param['id']]['Description'],
             glosses_english = '; '.join(param['glosses'].get('english', [])),
             glosses_german = '; '.join(param['glosses'].get('german', [])),
             glosses_french = '; '.join(param['glosses'].get('french', [])),
