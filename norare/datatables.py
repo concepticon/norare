@@ -11,15 +11,17 @@ from clld_markdown_plugin import markdown
 from norare import models
 
 
-class CategoryCol(Col):
-    def search(self, qs):
-        return models.Variable.category == qs
+class VariableCol(Col):
+    def __init__(self, dt, name, **kw):
+        Col.__init__(self, dt, name, **kw)
+        self.model_col = getattr(models.Variable, self.name)
+        self.choices = get_distinct_values(self.model_col)
 
-    def order(self):
-        return models.Variable.category
+    def search(self, qs):
+        return getattr(models.Variable, self.name) == qs
 
     def format(self, item):
-        return self.get_obj(item).category
+        return getattr(self.get_obj(item), self.name)
 
 
 class Norare(Unitvalues):
@@ -41,18 +43,14 @@ class Norare(Unitvalues):
     #    )
 
     def col_defs(self):
-        res = Unitvalues.col_defs(self)
+        res = [Col(self, 'name')] + Unitvalues.col_defs(self)[1:]
         if self.parameter:
-            # add variable (and dataset?), word, datatype,
-            # Variable.category as choice column!
             res.extend([
                 LinkCol(self, 'variable', get_object=lambda i: i.unitparameter),
-                CategoryCol(
-                    self,
-                    'category',
-                    model_col=models.Variable.category,
-                    get_object=lambda i: i.unitparameter,
-                    choices=get_distinct_values(models.Variable.category)),
+                VariableCol(self, 'category',get_object=lambda i: i.unitparameter),
+                VariableCol(self, 'structure',get_object=lambda i: i.unitparameter),
+                VariableCol(self, 'tag',get_object=lambda i: i.unitparameter),
+                # add language
             ])
         else:
             res.append(
