@@ -3,7 +3,7 @@ import collections
 
 from pycldf import Sources
 from clldutils.misc import nfilter, slug
-from clldutils.color import qualitative_colors
+from clldutils.jsonlib import load
 from clld.cliutil import Data, bibtex2source
 from clld.db.meta import DBSession
 from clld.db.models import common
@@ -30,7 +30,7 @@ def link_doi(text):
 
 def main(args):
     data = Data()
-    data.add(
+    ds = data.add(
         common.Dataset,
         norare.__name__,
         id=norare.__name__,
@@ -45,8 +45,29 @@ def main(args):
             'citation': link_doi(args.cldf.properties['dc:bibliographicCitation']),
             'license_icon': 'cc-by.png',
             'license_name': 'Creative Commons Attribution 4.0 International License'},
-
     )
+
+    def add_contributor(author):
+        if ',' in author:
+            assert author.count(',') == 1
+            last, first = [s.strip() for s in author.split(',')]
+        else:
+            comps = [s.strip() for s in author.split()]
+            last = comps[-1]
+            first = ' '.join(comps[:-1])
+        aid = slug(last + first)
+        contributor = data['Contributor'].get(aid)
+        if not contributor:
+            contributor = data.add(
+                common.Contributor,
+                aid,
+                id=aid,
+                name='{} {}'.format(first, last)
+            )
+        return contributor
+
+    for i, a in enumerate(load(args.cldf.directory.parent / '.zenodo.json')['creators'], start=1):
+        common.Editor(dataset=ds, contributor=add_contributor(a['name']), ord=i)
 
     def fname_to_component(ml):
         if ml.is_cldf_link:
@@ -69,24 +90,8 @@ def main(args):
             alias=c['Alias'],
         )
         for ord, author in enumerate(c['Contributor'], start=1):
-            if ',' in author:
-                assert author.count(',') == 1
-                last, first = [s.strip() for s in author.split(',')]
-            else:
-                comps = [s.strip() for s in author.split()]
-                last = comps[-1]
-                first = ' '.join(comps[:-1])
-            aid = slug(last + first)
-            contributor = data['Contributor'].get(aid)
-            if not contributor:
-                contributor = data.add(
-                    common.Contributor,
-                    aid,
-                    id=aid,
-                    name='{} {}'.format(first, last)
-                )
             DBSession.add(common.ContributionContributor(
-                contributor=contributor,
+                contributor=add_contributor(author),
                 contribution=contrib,
                 ord=ord))
         for src in c['Source']:

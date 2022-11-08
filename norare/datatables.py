@@ -1,6 +1,6 @@
 from sqlalchemy.orm import joinedload
 from clld.web import datatables
-from clld.web.datatables.base import LinkCol, Col, LinkToMapCol
+from clld.web.datatables.base import LinkCol, Col, LinkToMapCol, RefsCol
 from clld.web.datatables.unitvalue import Unitvalues
 from clld.web.datatables.contribution import Contributions
 from clld.web.datatables.parameter import Parameters
@@ -69,8 +69,9 @@ class DescriptionCol(Col):
 
 class Datasets(Contributions):
     def col_defs(self):
-        res = Contributions.col_defs(self)
+        res = Contributions.col_defs(self)[:-1]
         res.insert(1, DescriptionCol(self, 'description'))
+        res.append(RefsCol(self, 'source'))
         return res
 
     def get_options(self):
