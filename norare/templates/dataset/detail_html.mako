@@ -8,26 +8,29 @@
             If you use the data assembled here, we ask you kindly to cite the study.
         </p>
         <blockquote>
-
+            ${req.dataset.jsondata['citation']}
         </blockquote>
     </div>
 </%def>
 
 <h2>Welcome to norare</h2>
 
+<img src="${req.static_url('norare:static/norare-logo.svg')}" style="width: 25%; float: left; margin-right: 1em;">
 <p class="lead">
     Welcome to NoRaRe, the cross-linguistic database of norms, ratings, and relations of words and concepts.
 </p>
 <p>
-    In order to browse through the data, just navigate to the Concepts tab, and type in the name of any concept
-    you can think of. The tool will answer with a couple of suggestions, showing you the definitions that are
-    actively being used in the Concepticon project, and allow you to search all the metadata which we have so
-    far accumulated on the respective concept.
+    In order to browse through the data, just navigate to
+    <a href="${req.route_url('parameters')}">Concept sets</a>,
+    and start typing in the name of the concept in one of the available gloss languages, to have the table
+    filtered to matching entries.
 </p>
 <p>
     This web application serves as a light-weight interface to quickly browse the Database of Cross-Linguistic
     Norms, Ratings, and Relations for Words and Concepts (NoRaRe). The database can be understood as an expansion
-    of the Concepticon project which links concept lists used in the literature in historical linguistics,
+    of the
+    ${h.external_link('https://concepticon.clld.org', label='Concepticon project')}
+    which links concept lists used in the literature in historical linguistics,
     linguistics typology, and psycholinguistics to unique concept sets. While Concepticon links concept lists
     to concept sets, NoRaRe adds information on specific concept and word properties as they are provided in
     different datasets that have been published along with studies in linguistics and psychology.

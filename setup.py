@@ -23,8 +23,7 @@ setup(
         'cldfviz',
         'clld-glottologfamily-plugin>=4.0',
         'pyglottolog',
-
-
+        'clld_markdown_plugin',
         'clldmpg',
 
 ],

@@ -4,6 +4,7 @@ from clld.web.datatables.base import LinkCol, Col, LinkToMapCol
 from clld.web.datatables.unitvalue import Unitvalues
 from clld.web.datatables.contribution import Contributions
 from clld.web.datatables.parameter import Parameters
+from clld.web.datatables.unitparameter import Unitparameters
 from clld.db.models import common
 from clld.db.util import get_distinct_values
 from clld_markdown_plugin import markdown
@@ -91,7 +92,27 @@ class Conceptsets(Parameters):
         ]
 
 
+class Variables(Unitparameters):
+    __constraints__ = [common.Contribution]
+
+    def base_query(self, query):
+        query = query.join(models.Variable.dataset)
+        if self.contribution:
+            query = query.filter(models.Variable.dataset_pk == self.contribution.pk)
+        return query
+
+    def col_defs(self):
+        return [
+            LinkCol(self, 'id'),
+            VariableCol(self, 'category'),
+            VariableCol(self, 'structure'),
+            VariableCol(self, 'tag'),
+        ]
+
+
+
 def includeme(config):
     config.register_datatable('unitvalues', Norare)
     config.register_datatable('contributions', Datasets)
     config.register_datatable('parameters', Conceptsets)
+    config.register_datatable('unitparameters', Variables)
