@@ -1,3 +1,5 @@
+import json
+
 from sqlalchemy.orm import joinedload
 from clld.web import datatables
 from clld.web.datatables.base import LinkCol, Col, LinkToMapCol, RefsCol, DetailsRowLinkCol
@@ -25,11 +27,23 @@ class VariableCol(Col):
 
     def format(self, item):
         obj = self.get_obj(item)
-        if obj:
-            return HTML.div(
-                getattr(obj, self.name),
-                class_='dt-full-cell {}'.format(obj.category))
-        return ''  # pragma: no cover
+        if self.name != 'category':
+            return getattr(obj, self.name)
+        return HTML.div(
+            getattr(obj, self.name),
+            class_='dt-full-cell {}'.format(obj.category))
+
+
+class WordCol(Col):
+    def format(self, item):
+        return item.unit.name
+
+
+class ValueCol(Col):
+    def format(self, item):
+        if getattr(self, 'datatype', None) == 'json':
+            return HTML.pre(json.dumps(json.loads(item.name), indent=2))
+        return item.name
 
 
 class Norare(Unitvalues):
@@ -53,14 +67,24 @@ class Norare(Unitvalues):
                 .join(common.Parameter, common.ValueSet.parameter_pk == common.Parameter.pk) \
                 .join(common.UnitValue.unitparameter)\
                 .filter(common.UnitValue.unitparameter_pk == self.unitparameter.pk)
-            return query.options(joinedload(common.UnitValue.unitparameter))
+            return query.options(
+                joinedload(common.UnitValue.unitparameter),
+                joinedload(common.UnitValue.unit).joinedload(common.Unit.concept),
+            )
         return Unitvalues.base_query(self, query)
     #    return query.options(
     #        joinedload(common.UnitValue.unit).joinedload(common.Unit.concept).joinedload(common.Value.valueset).joinedload(common.ValueSet.parameter)
     #    )
 
     def col_defs(self):
-        res = [Col(self, 'name')] + Unitvalues.col_defs(self)[1:]
+        if self.unitparameter and self.unitparameter.datatype.base not in ['string', 'boolean', 'json']:
+            res = [Col(self, 'number', model_col=models.Norare.number, sTitle='Value', format=lambda i: i.number)]
+        else:
+            res = [ValueCol(self, 'name', sTitle='Value', datatype=self.unitparameter.datatype.base if self.unitparameter else None)]
+            if self.unitparameter and self.unitparameter.domain:
+                res[0].choices = [de.name for de in self.unitparameter.domain]
+        res.append(WordCol(self, 'word', model_col=common.Unit.name))
+
         if self.parameter:
             res.extend([
                 LinkCol(self, 'variable', get_object=lambda i: i.unitparameter),
@@ -89,10 +113,11 @@ class DescriptionCol(Col):
 
 class Datasets(Contributions):
     def col_defs(self):
-        res = Contributions.col_defs(self)[:-1]
-        res.insert(1, DescriptionCol(self, 'description'))
-        res.append(RefsCol(self, 'source'))
-        return res
+        return [
+            LinkCol(self, 'name'),
+            DescriptionCol(self, 'description'),
+            RefsCol(self, 'source'),
+        ]
 
     def get_options(self):
         return {'iDisplayLength': 150}

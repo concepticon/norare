@@ -8,8 +8,9 @@ from clld.cliutil import Data, bibtex2source
 from clld.db.meta import DBSession
 from clld.db.models import common
 from clld.lib import bibtex
-from csvw.metadata import Datatype
+from csvw.metadata import Datatype, Column
 from cldfviz.text import CLDFMarkdownLink
+from clldutils.misc import data_url
 
 
 import norare
@@ -47,6 +48,8 @@ def main(args):
         jsondata={
             'citation': link_doi(args.cldf.properties['dc:bibliographicCitation']),
             'license_icon': 'cc-by.png',
+            'wordcloud': data_url(
+                args.cldf.directory.parent / 'doc' / 'wc.png', mimetype='image/png'),
             'license_name': 'Creative Commons Attribution 4.0 International License'},
     )
 
@@ -133,6 +136,8 @@ def main(args):
     dtypes = {}
     for variable in args.cldf.iter_rows('variables.csv'):
         # ID,Dataset_ID,Language_ID,Name,Note,Other,Source,Category,Structure,Rating,Tag,Datatype
+        col = Column.fromvalue(variable['Datatype'])
+        dt = col.datatype
         v = data.add(
             models.Variable,
             variable['ID'],
@@ -149,8 +154,7 @@ def main(args):
             jsondata=variable['Datatype'],
         )
         DBSession.flush()
-        dt = Datatype.fromvalue(variable['Datatype'])
-        dtypes[variable['ID']] = dt
+        dtypes[variable['ID']] = col
         if (dt.base == 'string' and dt.format) or dt.base == 'boolean':
             # Create UnitParameterDomain objects!
             opts = dt.format.split('|') if dt.format else ['1', '0']
@@ -195,22 +199,22 @@ def main(args):
 
     for v in args.cldf.iter_rows('norare.csv'):
         variable = data['Variable'][v['Variable_ID']]
-        dt = dtypes[v['Variable_ID']]
-        try:
-            n = dt.parse(v['Value'])
-        except:
-            print(v['Value'], v)
-            raise
-        uv = common.UnitValue(
+        col = dtypes[v['Variable_ID']]
+        n = None
+        if not col.separator:
+            try:
+                n = col.datatype.parse(v['Value'])
+            except:
+                print(v['Value'], v)
+                raise
+        uv = models.Norare(
             id=v['ID'],
-            name=v['Value'],
+            name=col.write(col.read(v['Value'])),
             unit=data['Unit'][v['Unit_ID']],
             unitparameter=variable,
+            number=n if col.datatype.base not in ['string', 'boolean', 'json'] else None,
             #contribution=,
         )
-        if dt.base not in ['string', 'boolean', 'json']:
-            # A numeric value.
-            uv.number = n
         DBSession.add(uv)
 
 

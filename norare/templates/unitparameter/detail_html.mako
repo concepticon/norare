@@ -13,6 +13,10 @@
 
 <h2>${_('Unitparameter')} ${ctx.id.split('-')[-1]}</h2>
 
+##
+## FIXME: datatype! max, min!
+##
+##${ctx.jsondata}
 <div>${markdown(req, ctx.description)|n}</div>
 
 <div>

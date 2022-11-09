@@ -12,6 +12,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
+from csvw import metadata
 
 from clld import interfaces
 from clld.db.meta import Base, CustomModelMixin
@@ -77,6 +78,14 @@ class Variable(CustomModelMixin, common.UnitParameter):
     rating = Column(Unicode)
     tag = Column(Unicode)
     # types: bool, number, string (categorical), json
+
+    @property
+    def csvwcolumn(self):
+        return metadata.Column.fromvalue(self.jsondata)
+
+    @property
+    def datatype(self):
+        return self.csvwcolumn.datatype
 
 
 @implementer(interfaces.IUnitValue)

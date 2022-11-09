@@ -30,3 +30,8 @@
     to concept sets, NoRaRe adds information on specific concept and word properties as they are provided in
     different datasets that have been published along with studies in linguistics and psychology.
 </p>
+<div style="width: 100%; text-align: center">
+    <a href="${req.route_url('unitparameters')}">
+        <img width="50%" src="${ctx.jsondata['wordcloud']}" class="img-polaroid">
+    </a>
+</div>
