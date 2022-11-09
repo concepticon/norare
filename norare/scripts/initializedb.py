@@ -145,6 +145,7 @@ def main(args):
             tag=variable['Tag'],
             description=CLDFMarkdownLink.replace(variable['Note'], fname_to_component),
             dataset=data['NorareDataset'][variable['Dataset_ID']],
+            language=data['Language'][variable['Language_ID']],
             jsondata=variable['Datatype'],
         )
         DBSession.flush()

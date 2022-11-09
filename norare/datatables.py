@@ -8,6 +8,7 @@ from clld.web.datatables.unitparameter import Unitparameters
 from clld.web.datatables.value import Values
 from clld.db.models import common
 from clld.db.util import get_distinct_values
+from clld.web.util.htmllib import HTML
 from clld_markdown_plugin import markdown
 
 from norare import models
@@ -23,7 +24,12 @@ class VariableCol(Col):
         return getattr(models.Variable, self.name) == qs
 
     def format(self, item):
-        return getattr(self.get_obj(item), self.name)
+        obj = self.get_obj(item)
+        if obj:
+            return HTML.div(
+                getattr(obj, self.name),
+                class_='dt-full-cell {}'.format(obj.category))
+        return ''  # pragma: no cover
 
 
 class Norare(Unitvalues):
@@ -38,6 +44,15 @@ class Norare(Unitvalues):
                 .join(common.Parameter, common.ValueSet.parameter_pk == common.Parameter.pk)\
                 .join(common.UnitValue.unitparameter)
             query = query.filter(common.Parameter.pk == self.parameter.pk)
+            return query.options(joinedload(common.UnitValue.unitparameter))
+        if self.unitparameter:
+            query = query \
+                .join(common.Unit, common.UnitValue.unit_pk == common.Unit.pk) \
+                .join(models.Concept, common.Unit.pk == models.Concept.word_pk) \
+                .join(common.ValueSet, models.Concept.valueset_pk == common.ValueSet.pk) \
+                .join(common.Parameter, common.ValueSet.parameter_pk == common.Parameter.pk) \
+                .join(common.UnitValue.unitparameter)\
+                .filter(common.UnitValue.unitparameter_pk == self.unitparameter.pk)
             return query.options(joinedload(common.UnitValue.unitparameter))
         return Unitvalues.base_query(self, query)
     #    return query.options(
@@ -56,7 +71,11 @@ class Norare(Unitvalues):
             ])
         else:
             res.append(
-                LinkCol(self, 'concept', get_object=lambda i: i.unit.concept.valueset.parameter)
+                LinkCol(
+                    self,
+                    'concept',
+                    model_col=common.Parameter.name,
+                    get_object=lambda i: i.unit.concept.valueset.parameter)
             )
         return res
 

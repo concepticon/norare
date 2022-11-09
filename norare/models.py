@@ -69,6 +69,8 @@ class Variable(CustomModelMixin, common.UnitParameter):
 
     dataset_pk = Column(Integer, ForeignKey('noraredataset.pk'))
     dataset = relationship(NorareDataset, backref='variables')
+    language_pk = Column(Integer, ForeignKey('language.pk'))
+    language = relationship(common.Language, backref='variables')
     category = Column(Unicode)
     other = Column(Unicode)
     structure = Column(Unicode)

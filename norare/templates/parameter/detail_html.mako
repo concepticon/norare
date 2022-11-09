@@ -8,4 +8,6 @@
 
 <div class="alert alert-info">${ctx.description}</div>
 
+<h4>Related norms, ratings and relations</h4>
+
 ${request.get_datatable('unitvalues', h.models.UnitValue, parameter=ctx).render()}

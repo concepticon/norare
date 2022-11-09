@@ -13,7 +13,7 @@
     </div>
 </%def>
 
-<h2>Welcome to NoRaRe</h2>
+<h1>NoRaRe</h1>
 
 <img src="${req.static_url('norare:static/norare-logo.svg')}" style="width: 25%; float: left; margin-right: 1em;">
 <p class="lead">
