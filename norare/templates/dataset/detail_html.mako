@@ -1,4 +1,5 @@
 <%inherit file="../home_comp.mako"/>
+<%! from clld_markdown_plugin import markdown %>
 
 <%def name="sidebar()">
     <div class="well">
@@ -35,3 +36,7 @@
         <img width="50%" src="${ctx.jsondata['wordcloud']}" class="img-polaroid">
     </a>
 </div>
+
+<h3>Funding</h3>
+${markdown(req, req.dataset.jsondata['grants'])|n}
+<img width="200px" src="${req.static_url('norare:static/eu-logo.png')}"/>

@@ -2,15 +2,15 @@ import itertools
 import collections
 
 from pycldf import Dataset
-from clldutils.misc import nfilter, slug
+from clldutils.misc import nfilter, slug, data_url
 from clldutils.jsonlib import load
+from clldutils.markup import iter_markdown_sections
 from clld.cliutil import Data, bibtex2source
 from clld.db.meta import DBSession
 from clld.db.models import common
 from clld.lib import bibtex
 from csvw.metadata import Datatype, Column
 from cldfviz.text import CLDFMarkdownLink
-from clldutils.misc import data_url
 
 
 import norare
@@ -34,6 +34,10 @@ def main(args):
     concepticon = Dataset.from_metadata(
         args.cldf.directory.parent.parent / 'concepticon-cldf' / 'cldf' / 'Wordlist-metadata.json')
     concepticon = {r['ID']: r for r in concepticon['ParameterTable']}
+    contributors_md = {
+        h.replace('#', '').strip(): text for _, h, text in iter_markdown_sections(
+            args.cldf.directory.parent.joinpath('CONTRIBUTORS.md').read_text(encoding='utf8'))
+    }
     ds = data.add(
         common.Dataset,
         norare.__name__,
@@ -47,6 +51,7 @@ def main(args):
         license="http://creativecommons.org/licenses/by/4.0/",
         jsondata={
             'citation': link_doi(args.cldf.properties['dc:bibliographicCitation']),
+            'grants': contributors_md['Grant information'],
             'license_icon': 'cc-by.png',
             'wordcloud': data_url(
                 args.cldf.directory.parent / 'doc' / 'wc.png', mimetype='image/png'),
