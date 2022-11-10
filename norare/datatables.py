@@ -41,7 +41,9 @@ class WordCol(Col):
 
 class ValueCol(Col):
     def format(self, item):
-        if getattr(self, 'datatype', None) == 'json':
+        if self.csvw and self.csvw.valueUrl:
+            return HTML.a(item.name, href=self.csvw.valueUrl.expand(Value=item.name))
+        if self.csvw and self.csvw.datatype.base == 'json':
             return HTML.pre(json.dumps(json.loads(item.name), indent=2))
         return item.name
 
@@ -80,7 +82,7 @@ class Norare(Unitvalues):
         if self.unitparameter and self.unitparameter.datatype.base not in ['string', 'boolean', 'json']:
             res = [Col(self, 'number', model_col=models.Norare.number, sTitle='Value', format=lambda i: i.number)]
         else:
-            res = [ValueCol(self, 'name', sTitle='Value', datatype=self.unitparameter.datatype.base if self.unitparameter else None)]
+            res = [ValueCol(self, 'name', sTitle='Value', csvw=self.unitparameter.csvwcolumn if self.unitparameter else None)]
             if self.unitparameter and self.unitparameter.domain:
                 res[0].choices = [de.name for de in self.unitparameter.domain]
         res.append(WordCol(self, 'word', model_col=common.Unit.name))
@@ -89,8 +91,8 @@ class Norare(Unitvalues):
             res.extend([
                 LinkCol(self, 'variable', get_object=lambda i: i.unitparameter),
                 VariableCol(self, 'category',get_object=lambda i: i.unitparameter),
-                VariableCol(self, 'structure',get_object=lambda i: i.unitparameter),
-                VariableCol(self, 'tag',get_object=lambda i: i.unitparameter),
+                VariableCol(self, 'type',get_object=lambda i: i.unitparameter),
+                VariableCol(self, 'result',get_object=lambda i: i.unitparameter),
                 # add language
             ])
         else:
@@ -142,7 +144,7 @@ class Variables(Unitparameters):
     __constraints__ = [common.Contribution]
 
     def base_query(self, query):
-        query = query.join(models.Variable.dataset)
+        query = query.join(models.Variable.dataset).join(models.Variable.language)
         if self.contribution:
             query = query.filter(models.Variable.dataset_pk == self.contribution.pk)
         return query
@@ -150,9 +152,15 @@ class Variables(Unitparameters):
     def col_defs(self):
         return [
             LinkCol(self, 'id'),
+            LinkCol(
+                self,
+                'language',
+                choices=get_distinct_values(common.Language.name),
+                model_col=common.Language.name,
+                get_object=lambda i: i.language),
             VariableCol(self, 'category'),
-            VariableCol(self, 'structure'),
-            VariableCol(self, 'tag'),
+            VariableCol(self, 'type'),
+            VariableCol(self, 'result'),
         ]
 
 

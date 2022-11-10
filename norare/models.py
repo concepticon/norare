@@ -56,14 +56,7 @@ class NorareDataset(CustomModelMixin, common.Contribution):
     url = Column(Unicode)
     alias = Column(Unicode)
 
-#
-# Form -> Unit
-#
 
-#
-# unit-parameter -> UnitParameter
-# - relationship(Contribution)
-#
 @implementer(interfaces.IUnitParameter)
 class Variable(CustomModelMixin, common.UnitParameter):
     pk = Column(Integer, ForeignKey('unitparameter.pk'), primary_key=True)
@@ -74,10 +67,9 @@ class Variable(CustomModelMixin, common.UnitParameter):
     language = relationship(common.Language, backref='variables')
     category = Column(Unicode)
     other = Column(Unicode)
-    structure = Column(Unicode)
-    rating = Column(Unicode)
-    tag = Column(Unicode)
-    # types: bool, number, string (categorical), json
+    type = Column(Unicode)
+    method = Column(Unicode)
+    result = Column(Unicode)
 
     @property
     def csvwcolumn(self):
@@ -86,6 +78,14 @@ class Variable(CustomModelMixin, common.UnitParameter):
     @property
     def datatype(self):
         return self.csvwcolumn.datatype
+
+    def format_datatype(self):
+        res = self.datatype.base
+        if self.datatype.minimum and self.datatype.maximum:
+            res += ' [{}..{}]'.format(self.datatype.minimum, self.datatype.maximum)
+        if self.csvwcolumn.separator:
+            res = '"{}"-separated list of {}'.format(self.csvwcolumn.separator, res)
+        return res
 
 
 @implementer(interfaces.IUnitValue)
