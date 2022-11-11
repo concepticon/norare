@@ -9,8 +9,8 @@
         of
         ${h.external_link('https://github.com/concepticon/norare-cldf', label='concepticon/norare-cldf')}.
         All released version are accessible via
-        <a href="https://doi.org/">
-            <img src="https://zenodo.org/badge/DOI/ .svg" alt="DOI">
+        <a href="https://doi.org/10.5281/zenodo.7312926">
+            <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.7312926.svg" alt="DOI">
         </a>
         <br/>
         on ZENODO as well.
