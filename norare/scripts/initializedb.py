@@ -10,7 +10,7 @@ from clld.db.meta import DBSession
 from clld.db.models import common
 from clld.lib import bibtex
 from csvw.metadata import Datatype, Column
-from cldfviz.text import CLDFMarkdownLink
+from pycldf.ext.markdown import CLDFMarkdownLink
 
 
 import norare
