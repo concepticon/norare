@@ -25,8 +25,8 @@ setup(
         'pyglottolog',
         'clld_markdown_plugin',
         'clldmpg',
-
-],
+        'psycopg2',
+    ],
 extras_require={
         'dev': ['flake8', 'waitress'],
         'test': [
